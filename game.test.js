@@ -61,4 +61,23 @@ describe('game test', ()=> {
                 .toBe(true)
         }
     })
+
+    it ('check google position after jump', async ()=> {
+        for (let i=0; i<10; i++) {
+            const game = new Game()
+            game.settings = {
+                gridSize: {
+                    columnCount: 1,
+                    rowsCount: 4
+                },
+                googleJumpInterval: 100,
+            }
+            await game.start()
+            const prevPosition = game.google.position.clone()
+            await sleep(150)
+            expect(game.google.position.equal(prevPosition)).toBe(false)
+        }
+    })
 });
+
+const sleep = ms => new Promise(res => setTimeout(res, ms))
