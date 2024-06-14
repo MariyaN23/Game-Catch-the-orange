@@ -7,6 +7,10 @@ class Game {
         googleJumpInterval: 2000,
     }
     #status = 'pending'
+    #score = {
+        1: {points: 0},
+        2: {points: 0}
+    }
     #player1
     #player2
     #google
@@ -44,14 +48,87 @@ class Game {
     get google() {
         return this.#google
     }
+    get score() {
+        return this.#score
+    }
+    #movePlayer(player, otherPlayer, delta) {
+        const canMove = this.#canMoveOrOutOfBorders(player, delta)
+        if (!canMove) return
+        const canMoveOrOtherPlayer = this.#canMoveOrOtherPlayerBlocking(player, otherPlayer, delta)
+        if (!canMoveOrOtherPlayer) return;
+        if (delta.x) player.position.x += delta.x
+        if (delta.y) player.position.y += delta.y
+        this.#checkGoogleCatching(player)
+    }
+    #canMoveOrOutOfBorders(player, delta) {
+        const newPosition = player.position.clone()
+        if (delta.x) {
+            newPosition.x += delta.x
+        }
+        if (delta.y) {
+            newPosition.y += delta.y
+        }
+        if (newPosition.x < 0 || newPosition.x > this.#settings.gridSize.columnCount) return false
+        if (newPosition.y < 0 || newPosition.y > this.#settings.gridSize.rowsCount) return false
+        return true
+    }
+    #canMoveOrOtherPlayerBlocking(movingPlayer, otherPlayer, delta) {
+        const newPosition = movingPlayer.position.clone()
+        if (delta.x) {
+            newPosition.x += delta.x
+        }
+        if (delta.y) {
+            newPosition.y += delta.y
+        }
+        return !otherPlayer.position.equal(newPosition)
+    }
+    #checkGoogleCatching(player) {
+        if (player.position.equal(this.#google.position)) {
+            this.#score[player.number].points++
+            this.#moveGoogleToRandomPosition()
+        }
+    }
+    movePlayer1ToRight() {
+        const delta = {x: 1}
+        this.#movePlayer(this.#player1, this.#player2, delta)
+    }
+    movePlayer1ToLeft() {
+        const delta = {x: -1}
+        this.#movePlayer(this.#player1, this.#player2, delta)
+    }
+    movePlayer1ToUp() {
+        const delta = {y: -1}
+        this.#movePlayer(this.#player1, this.#player2, delta)
+    }
+    movePlayer1ToDown() {
+        const delta = {y: 1}
+        this.#movePlayer(this.#player1, this.#player2, delta)
+    }
+    movePlayer2ToRight() {
+        const delta = {x: 1}
+        this.#movePlayer(this.#player2, this.#player1, delta)
+    }
+    movePlayer2ToLeft() {
+        const delta = {x: -1}
+        this.#movePlayer(this.#player2, this.#player1, delta)
+    }
+    movePlayer2ToUp() {
+        const delta = {y: -1}
+        this.#movePlayer(this.#player2, this.#player1, delta)
+    }
+    movePlayer2ToDown() {
+        const delta = {y: 1}
+        this.#movePlayer(this.#player2, this.#player1, delta)
+    }
     #createPlayers() {
         const player1Position = new Position(NumberUtil.getRandomNumber(0, this.#settings.gridSize.columnCount - 1),
             NumberUtil.getRandomNumber(0, this.#settings.gridSize.rowsCount - 1))
-        this.#player1 = new Player(player1Position)
+        this.#player1 = new Player(player1Position, 1)
         const player2Position = this.#getRandomPosition([player1Position])
-        this.#player2 = new Player(player2Position)
-        const googlePosition = this.#getRandomPosition([player1Position, player2Position])
-        this.#google = new Google(googlePosition)
+        this.#player2 = new Player(player2Position, 2)
+
+        this.#google = new Google()
+        this.#moveGoogleToRandomPosition(true)
     }
     async start() {
         if (this.#status === 'pending') {
@@ -59,11 +136,21 @@ class Game {
             this.#status = 'in-progress'
 
             setInterval(()=> {
-                const newGooglePosition = this.#getRandomPosition([this.#player1.position, this.#player2.position, this.#google.position])
-                this.#google.position = newGooglePosition
+                this.#moveGoogleToRandomPosition()
             }, this.#settings.googleJumpInterval)
         }
 
+    }
+    #moveGoogleToRandomPosition(excludeGoogle = false) {
+        let notCrossedPosition = [
+            this.#player1.position,
+            this.#player2.position
+        ]
+        if (!excludeGoogle) {
+            notCrossedPosition.push(this.#google.position)
+        }
+        const newGooglePosition = this.#getRandomPosition(notCrossedPosition)
+        this.#google.position = newGooglePosition
     }
 }
 
@@ -93,8 +180,9 @@ class Unit {
 }
 
 class Player extends Unit {
-    constructor(position) {
+    constructor(position, number) {
         super(position)
+        this.number = number
     }
 }
 
