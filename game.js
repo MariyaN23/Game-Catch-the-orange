@@ -5,6 +5,7 @@ class Game {
             rowsCount: 4
         },
         googleJumpInterval: 2000,
+        pointsToWin: 10,
     }
     #status = 'pending'
     #score = {
@@ -14,6 +15,7 @@ class Game {
     #player1
     #player2
     #google
+    #googleJumpInterval
 
     constructor() {
     }
@@ -28,13 +30,14 @@ class Game {
         return new Position(newX, newY)
     }
     set settings(settings) {
-        if (!settings.gridSize) {
-            throw new Error('Incorrect setting object')
+        this.#settings = {
+            ...this.#settings,
+            ...settings
         }
-        if (settings.gridSize.columnCount * settings.gridSize.rowsCount < 3) {
-            throw new Error('Cells count should be 3 and more. Increase columnCount or rowsCount.')
-        }
-        this.#settings = settings
+        this.#settings.gridSize = settings.gridSize ? {
+            ...this.#settings.gridSize,
+            ...settings.gridSize
+        } : this.#settings.gridSize
     }
     get settings() {
         return this.#settings
@@ -85,7 +88,11 @@ class Game {
     #checkGoogleCatching(player) {
         if (player.position.equal(this.#google.position)) {
             this.#score[player.number].points++
-            this.#moveGoogleToRandomPosition()
+            if (this.#score[player.number].points === this.#settings.pointsToWin) {
+                this.#finishGame()
+            } else {
+                this.#moveGoogleToRandomPosition()
+            }
         }
     }
     movePlayer1ToRight() {
@@ -135,11 +142,15 @@ class Game {
             this.#createPlayers()
             this.#status = 'in-progress'
 
-            setInterval(()=> {
+            this.#googleJumpInterval = setInterval(()=> {
                 this.#moveGoogleToRandomPosition()
             }, this.#settings.googleJumpInterval)
         }
 
+    }
+    async stop() {
+        this.#status = 'stopped'
+        clearInterval(this.#googleJumpInterval)
     }
     #moveGoogleToRandomPosition(excludeGoogle = false) {
         let notCrossedPosition = [
@@ -151,6 +162,10 @@ class Game {
         }
         const newGooglePosition = this.#getRandomPosition(notCrossedPosition)
         this.#google.position = newGooglePosition
+    }
+    #finishGame() {
+        this.#status = 'finished'
+        clearInterval(this.#googleJumpInterval)
     }
 }
 
