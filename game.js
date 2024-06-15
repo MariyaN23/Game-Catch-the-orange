@@ -19,6 +19,7 @@ class Game {
 
     constructor() {
     }
+
     #getRandomPosition(notCrossedPositions = []) {
         let newX
         let newY
@@ -29,6 +30,7 @@ class Game {
             notCrossedPositions.some(p => newX === p.x && newY === p.y))
         return new Position(newX, newY)
     }
+
     set settings(settings) {
         this.#settings = {
             ...this.#settings,
@@ -39,30 +41,37 @@ class Game {
             ...settings.gridSize
         } : this.#settings.gridSize
     }
+
     get settings() {
         return this.#settings
     }
+
     get status() {
         return this.#status
     }
+
     get players() {
-        return [this.#player1, this.#player2]
+        return [this.#player1.clone(), this.#player2.clone()]
     }
+
     get google() {
-        return this.#google
+        return this.#google.clone()
     }
+
     get score() {
         return this.#score
     }
+
     #movePlayer(player, otherPlayer, delta) {
         const canMove = this.#canMoveOrOutOfBorders(player, delta)
         if (!canMove) return
         const canMoveOrOtherPlayer = this.#canMoveOrOtherPlayerBlocking(player, otherPlayer, delta)
         if (!canMoveOrOtherPlayer) return;
-        if (delta.x) player.position.x += delta.x
-        if (delta.y) player.position.y += delta.y
+        if (delta.x) player.position = new Position(player.position.x + delta.x, player.position.y)
+        if (delta.y) player.position = new Position(player.position.x, player.position.y + delta.y)
         this.#checkGoogleCatching(player)
     }
+
     #canMoveOrOutOfBorders(player, delta) {
         const newPosition = player.position.clone()
         if (delta.x) {
@@ -75,6 +84,7 @@ class Game {
         if (newPosition.y < 0 || newPosition.y > this.#settings.gridSize.rowsCount) return false
         return true
     }
+
     #canMoveOrOtherPlayerBlocking(movingPlayer, otherPlayer, delta) {
         const newPosition = movingPlayer.position.clone()
         if (delta.x) {
@@ -85,51 +95,62 @@ class Game {
         }
         return !otherPlayer.position.equal(newPosition)
     }
+
     #checkGoogleCatching(player) {
         if (player.position.equal(this.#google.position)) {
             this.#score[player.number].points++
             if (this.#score[player.number].points === this.#settings.pointsToWin) {
                 this.#finishGame()
             } else {
+                clearInterval(this.#googleJumpInterval)
                 this.#moveGoogleToRandomPosition()
+                this.#runGoogleJumpInterval()
             }
         }
     }
+
     movePlayer1ToRight() {
         const delta = {x: 1}
         this.#movePlayer(this.#player1, this.#player2, delta)
     }
+
     movePlayer1ToLeft() {
         const delta = {x: -1}
         this.#movePlayer(this.#player1, this.#player2, delta)
     }
+
     movePlayer1ToUp() {
         const delta = {y: -1}
         this.#movePlayer(this.#player1, this.#player2, delta)
     }
+
     movePlayer1ToDown() {
         const delta = {y: 1}
         this.#movePlayer(this.#player1, this.#player2, delta)
     }
+
     movePlayer2ToRight() {
         const delta = {x: 1}
         this.#movePlayer(this.#player2, this.#player1, delta)
     }
+
     movePlayer2ToLeft() {
         const delta = {x: -1}
         this.#movePlayer(this.#player2, this.#player1, delta)
     }
+
     movePlayer2ToUp() {
         const delta = {y: -1}
         this.#movePlayer(this.#player2, this.#player1, delta)
     }
+
     movePlayer2ToDown() {
         const delta = {y: 1}
         this.#movePlayer(this.#player2, this.#player1, delta)
     }
-    #createPlayers() {
-        const player1Position = new Position(NumberUtil.getRandomNumber(0, this.#settings.gridSize.columnCount - 1),
-            NumberUtil.getRandomNumber(0, this.#settings.gridSize.rowsCount - 1))
+
+    #createUnits() {
+        const player1Position = this.#getRandomPosition([])
         this.#player1 = new Player(player1Position, 1)
         const player2Position = this.#getRandomPosition([player1Position])
         this.#player2 = new Player(player2Position, 2)
@@ -137,21 +158,26 @@ class Game {
         this.#google = new Google()
         this.#moveGoogleToRandomPosition(true)
     }
+
     async start() {
         if (this.#status === 'pending') {
-            this.#createPlayers()
+            this.#createUnits()
             this.#status = 'in-progress'
-
-            this.#googleJumpInterval = setInterval(()=> {
-                this.#moveGoogleToRandomPosition()
-            }, this.#settings.googleJumpInterval)
+            this.#runGoogleJumpInterval()
         }
-
     }
+
+    #runGoogleJumpInterval() {
+        this.#googleJumpInterval = setInterval(() => {
+            this.#moveGoogleToRandomPosition()
+        }, this.#settings.googleJumpInterval)
+    }
+
     async stop() {
         this.#status = 'stopped'
         clearInterval(this.#googleJumpInterval)
     }
+
     #moveGoogleToRandomPosition(excludeGoogle = false) {
         let notCrossedPosition = [
             this.#player1.position,
@@ -163,6 +189,7 @@ class Game {
         const newGooglePosition = this.#getRandomPosition(notCrossedPosition)
         this.#google.position = newGooglePosition
     }
+
     #finishGame() {
         this.#status = 'finished'
         clearInterval(this.#googleJumpInterval)
@@ -171,7 +198,7 @@ class Game {
 
 class NumberUtil {
     static getRandomNumber(min, max) {
-        return Math.floor(Math.random()*(max - min + 1)) + min
+        return Math.floor(Math.random() * (max - min + 1)) + min
     }
 }
 
@@ -180,17 +207,32 @@ class Position {
         this.x = x
         this.y = y
     }
+
     clone() {
         return new Position(this.x, this.y)
     }
+
     equal(otherPosition) {
         return otherPosition.x === this.x && otherPosition.y === this.y
     }
 }
 
 class Unit {
+    #position
+
     constructor(position) {
-        this.position = position
+        this.#position = position
+    }
+
+    get position() {
+        return new Position(this.#position.x, this.#position.y)
+    }
+
+    set position(position) {
+        this.#position = position
+    }
+    clone() {
+        return Object.assign(new this.constructor(), this, {position: this.#position.clone()})
     }
 }
 
@@ -208,5 +250,6 @@ class Google extends Unit {
 }
 
 module.exports = {
-    Game
+    Game,
+    Position
 }

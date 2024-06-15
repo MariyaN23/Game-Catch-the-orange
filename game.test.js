@@ -1,4 +1,4 @@
-const {Game} = require('./game')
+const {Game, Position} = require('./game')
 
 describe('game test', () => {
     let game
@@ -203,6 +203,15 @@ describe('game test', () => {
         expect(game.status).toBe('finished')
         await game.stop()
         expect(game.status).toBe('stopped')
+    })
+
+    it("position shouldn't be changed", async () => {
+        await game.start()
+        const player = game.players[0]
+        const prevX = player.position.x
+        player.position = new Position(100, 100)
+
+        expect(game.players[0].position.x).toBe(prevX)
     })
 });
 
