@@ -1,4 +1,4 @@
-class Game {
+export class Game {
     #settings = {
         gridSize: {
             columnCount: 4,
@@ -202,7 +202,7 @@ class NumberUtil {
     }
 }
 
-class Position {
+export class Position {
     constructor(x, y) {
         this.x = x
         this.y = y
@@ -249,7 +249,9 @@ class Google extends Unit {
     }
 }
 
-module.exports = {
+
+//for tests
+/*module.exports = {
     Game,
     Position
-}
+}*/
