@@ -1,36 +1,47 @@
 import {Game} from './game.js';
+import {EventEmitter} from './utils/observer/eventEmitter.js';
+import {GameComponent} from './view.js';
 
-const game = new Game()
 const startGame = async () => {
+    const eventEmitter = new EventEmitter()
+    const game = new Game("new game", eventEmitter)
     await game.start()
-    const tableElement = document.getElementById("game-grid")
-    const render = () => {
-        tableElement.innerHTML = ''
-        for (let y = 0; y < game.settings.gridSize.rowsCount; y++) {
-            const tr = document.createElement("tr")
-            for (let x = 0; x < game.settings.gridSize.columnCount; x++) {
-                const td = document.createElement("td")
-                if (game.players[0].position.x === x && game.players[0].position.y === y) {
-                    const img = document.createElement("img")
-                    img.src = 'assets/img/player1.png'
-                    td.append(img)
-                }
-                if (game.players[1].position.x === x && game.players[1].position.y === y) {
-                    const img = document.createElement("img")
-                    img.src = 'assets/img/player2.png'
-                    td.append(img)
-                }
-                if (game.google.position.x === x && game.google.position.y === y) {
-                    const img = document.createElement("img")
-                    img.src = 'assets/img/orange.jpg'
-                    td.append(img)
-                }
-                tr.append(td)
-            }
-            tableElement.append(tr)
+    const view = new GameComponent(game)
+    view.render()
+
+    window.addEventListener("keydown", (e)=> {
+        switch (e.code) {
+            case "ArrowUp":
+                game.movePlayer1ToUp()
+                break
+            case "ArrowDown":
+                game.movePlayer1ToDown()
+                break
+            case "ArrowLeft":
+                game.movePlayer1ToLeft()
+                break
+            case "ArrowRight":
+                game.movePlayer1ToRight()
+                break
         }
-    }
-    render()
+    })
+
+    window.addEventListener("keydown", (e)=> {
+        switch (e.code) {
+            case "KeyW":
+                game.movePlayer2ToUp()
+                break
+            case "KeyS":
+                game.movePlayer2ToDown()
+                break
+            case "KeyA":
+                game.movePlayer2ToLeft()
+                break
+            case "KeyD":
+                game.movePlayer2ToRight()
+                break
+        }
+    })
 }
 
 startGame()

@@ -16,8 +16,11 @@ export class Game {
     #player2
     #google
     #googleJumpInterval
+    eventEmitter
 
-    constructor() {
+    constructor(name, eventEmitter) {
+        this.name = name
+        this.eventEmitter = eventEmitter
     }
 
     #getRandomPosition(notCrossedPositions = []) {
@@ -70,6 +73,7 @@ export class Game {
         if (delta.x) player.position = new Position(player.position.x + delta.x, player.position.y)
         if (delta.y) player.position = new Position(player.position.x, player.position.y + delta.y)
         this.#checkGoogleCatching(player)
+        this.eventEmitter.emit("change")
     }
 
     #canMoveOrOutOfBorders(player, delta) {
@@ -80,8 +84,8 @@ export class Game {
         if (delta.y) {
             newPosition.y += delta.y
         }
-        if (newPosition.x < 0 || newPosition.x > this.#settings.gridSize.columnCount) return false
-        if (newPosition.y < 0 || newPosition.y > this.#settings.gridSize.rowsCount) return false
+        if (newPosition.x < 0 || newPosition.x >= this.#settings.gridSize.columnCount) return false
+        if (newPosition.y < 0 || newPosition.y >= this.#settings.gridSize.rowsCount) return false
         return true
     }
 
@@ -188,6 +192,7 @@ export class Game {
         }
         const newGooglePosition = this.#getRandomPosition(notCrossedPosition)
         this.#google.position = newGooglePosition
+        this.eventEmitter.emit("change")
     }
 
     #finishGame() {

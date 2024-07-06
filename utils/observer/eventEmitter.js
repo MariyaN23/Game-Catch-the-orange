@@ -1,4 +1,4 @@
-class Observable {
+export class EventEmitter {
     #subscibers = {}
     addEventListener(eventName, observer) {
         return this.subscribe(eventName, observer)
