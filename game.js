@@ -5,6 +5,12 @@ export const directions = {
     Left: 'Left'
 }
 
+export const gameModes = {
+    client: 'client',
+    onlyClient: 'only-client',
+    server: 'server'
+}
+
 export class EventsFactory {
     playerMoved(delta, playerNumber) {
         let direction
@@ -17,10 +23,13 @@ export class EventsFactory {
         } else {
             direction = directions.Up
         }
-        return {type: `PLAYER${playerNumber}/MOVED`, payload: {direction}}
+        return {type: "PLAYER/MOVED", payload: {direction, playerNumber}}
     }
     googleJumped(x, y) {
         return {type: "GOOGLE/JUMPED", payload: {x, y}}
+    }
+    setStartPlayersPosition(x, y, playerNumber) {
+        return {type: "PLAYER/SET-START-POSITION", payload: {x, y, playerNumber}}
     }
 }
 
@@ -32,6 +41,7 @@ export class Game {
         },
         googleJumpInterval: 2000,
         pointsToWin: 10,
+        mode: gameModes.client
     }
     #status = 'pending'
     #score = {
@@ -184,18 +194,33 @@ export class Game {
     #createUnits() {
         const player1Position = this.#getRandomPosition([])
         this.#player1 = new Player(player1Position, 1)
+        this.eventEmitter.emit('change',
+            this.#eventsFactory.setStartPlayersPosition(player1Position.x, player1Position.y, 1))
+
         const player2Position = this.#getRandomPosition([player1Position])
         this.#player2 = new Player(player2Position, 2)
+        this.eventEmitter.emit('change',
+            this.#eventsFactory.setStartPlayersPosition(player2Position.x, player2Position.y, 2))
 
         this.#google = new Google()
         this.#moveGoogleToRandomPosition(true)
     }
 
+    #createUnitsForClientMode() {
+        this.#player1 = new Player(new Position(0, 0), 1)
+        this.#player2 = new Player(new Position(0, 0), 2)
+        this.#google = new Google(new Position(0, 0))
+    }
+
     async start() {
         if (this.#status === 'pending') {
-            this.#createUnits()
             this.#status = 'in-progress'
-            this.#runGoogleJumpInterval()
+            if (this.#settings.mode !== gameModes.client) {
+                this.#runGoogleJumpInterval()
+                this.#createUnits()
+            } else {
+                this.#createUnitsForClientMode()
+            }
         }
     }
 
@@ -222,7 +247,23 @@ export class Game {
         this.#google.position = newGooglePosition
         this.eventEmitter.emit("change", this.#eventsFactory.googleJumped(newGooglePosition.x, newGooglePosition.y))
     }
-
+    setGooglePosition(x, y) {
+        if (this.#settings.mode !== gameModes.client) {
+            throw new Error('Impossible control Google position')
+        }
+        this.#google.position = new Position(x, y)
+        this.eventEmitter.emit("change", this.#eventsFactory.googleJumped(this.#google.position.x, this.#google.position.y))
+    }
+    setPlayerPosition(x, y, playerNumber) {
+        if (this.#settings.mode !== gameModes.client) {
+            throw new Error('Impossible control Google position')
+        }
+        const player = playerNumber === 1 ? this.#player1 : this.#player2
+        player.position = new Position(x, y)
+        this.eventEmitter.emit("change",
+        this.#eventsFactory.setStartPlayersPosition(player.position.x, player.position.y, playerNumber))
+        //this.eventEmitter.emit("change")
+    }
     #finishGame() {
         this.#status = 'finished'
         clearInterval(this.#googleJumpInterval)
