@@ -1,3 +1,29 @@
+export const directions = {
+    Up: 'Up',
+    Down: 'Down',
+    Right: 'Right',
+    Left: 'Left'
+}
+
+export class EventsFactory {
+    playerMoved(delta, playerNumber) {
+        let direction
+        if (delta.x > 0) {
+            direction = directions.Right
+        } else if (delta.x < 0) {
+            direction = directions.Left
+        } else if (delta.y > 0) {
+            direction = directions.Down
+        } else {
+            direction = directions.Up
+        }
+        return {type: `PLAYER${playerNumber}/MOVED`, payload: {direction}}
+    }
+    googleJumped(x, y) {
+        return {type: "GOOGLE/JUMPED", payload: {x, y}}
+    }
+}
+
 export class Game {
     #settings = {
         gridSize: {
@@ -17,10 +43,12 @@ export class Game {
     #google
     #googleJumpInterval
     eventEmitter
+    #eventsFactory
 
-    constructor(name, eventEmitter) {
+    constructor(name, eventEmitter, eventsFactory) {
         this.name = name
         this.eventEmitter = eventEmitter
+        this.#eventsFactory = eventsFactory
     }
 
     #getRandomPosition(notCrossedPositions = []) {
@@ -73,7 +101,7 @@ export class Game {
         if (delta.x) player.position = new Position(player.position.x + delta.x, player.position.y)
         if (delta.y) player.position = new Position(player.position.x, player.position.y + delta.y)
         this.#checkGoogleCatching(player)
-        this.eventEmitter.emit("change")
+        this.eventEmitter.emit("change", this.#eventsFactory.playerMoved(delta, player.number))
     }
 
     #canMoveOrOutOfBorders(player, delta) {
@@ -192,7 +220,7 @@ export class Game {
         }
         const newGooglePosition = this.#getRandomPosition(notCrossedPosition)
         this.#google.position = newGooglePosition
-        this.eventEmitter.emit("change")
+        this.eventEmitter.emit("change", this.#eventsFactory.googleJumped(newGooglePosition.x, newGooglePosition.y))
     }
 
     #finishGame() {
