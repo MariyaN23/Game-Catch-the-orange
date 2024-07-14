@@ -11,6 +11,19 @@ const startGame = async () => {
     const eventsFactory = new EventsFactory()
     const wsAdapter = new WSAdapter(socket)
     const game = new Game("new game", eventEmitter, eventsFactory)
+    const rows = document.getElementById('rows')
+    const columns = document.getElementById('columns')
+    const pointstowin = document.getElementById('pointstowin')
+    const columnCount = Number(columns.value)
+    const rowsCount = Number(rows.value)
+    const pointsToWin = Number(pointstowin.value)
+    game.settings = {
+        gridSize: {
+            columnCount,
+            rowsCount
+        },
+        pointsToWin,
+    }
     await game.start()
     let controller
     if (game.settings.mode === gameModes.onlyClient) {
@@ -22,4 +35,12 @@ const startGame = async () => {
     view.render()
 }
 
-startGame()
+const StartButton = document.getElementById('start')
+StartButton.addEventListener('click', startGame)
+
+const rows = document.getElementById('rows')
+const columns = document.getElementById('columns')
+const pointstowin = document.getElementById('pointstowin')
+rows.value = 4
+columns.value = 4
+pointstowin.value = 3

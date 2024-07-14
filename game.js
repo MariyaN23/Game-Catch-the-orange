@@ -40,8 +40,8 @@ export class Game {
             rowsCount: 4
         },
         googleJumpInterval: 2000,
-        pointsToWin: 10,
-        mode: gameModes.client
+        pointsToWin: 3,
+        mode: gameModes.onlyClient
     }
     #status = 'pending'
     #score = {
@@ -54,6 +54,7 @@ export class Game {
     #googleJumpInterval
     eventEmitter
     #eventsFactory
+    #winner
 
     constructor(name, eventEmitter, eventsFactory) {
         this.name = name
@@ -142,7 +143,7 @@ export class Game {
         if (player.position.equal(this.#google.position)) {
             this.#score[player.number].points++
             if (this.#score[player.number].points === this.#settings.pointsToWin) {
-                this.#finishGame()
+                this.#finishGame(player.number)
             } else {
                 clearInterval(this.#googleJumpInterval)
                 this.#moveGoogleToRandomPosition()
@@ -264,9 +265,13 @@ export class Game {
         this.#eventsFactory.setStartPlayersPosition(player.position.x, player.position.y, playerNumber))
         //this.eventEmitter.emit("change")
     }
-    #finishGame() {
+    #finishGame(playerNumber) {
         this.#status = 'finished'
+        this.#winner = playerNumber
         clearInterval(this.#googleJumpInterval)
+    }
+    get winner(){
+        return this.#winner
     }
 }
 

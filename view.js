@@ -70,7 +70,13 @@ export class GameComponent {
             }
             this.#tableElement.append(tr)
         }
+        if (this.#game.status === 'finished') {
+            this.#tableElement.remove()
+            this.#scoreElement.remove()
+
+            const EndElement = document.getElementById("end")
+            EndElement.textContent = `Player ${this.#game.winner} Win`
+        }
         this.#bindEventListeners()
     }
-
 }
