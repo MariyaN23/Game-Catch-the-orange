@@ -6,6 +6,9 @@ export class GameComponent {
     #scoreElement
     #EndElement
     #ButtonElement
+    #rows
+    #columns
+    #pointsToWin
     #game
     #controller
     #unbindEventListeners = null
@@ -14,6 +17,9 @@ export class GameComponent {
         this.#scoreElement = document.getElementById("result")
         this.#EndElement = document.getElementById("end")
         this.#ButtonElement = document.getElementById('start')
+        this.#rows = document.getElementById('rows')
+        this.#columns = document.getElementById('columns')
+        this.#pointsToWin = document.getElementById('pointstowin')
         this.#game = game
         this.#controller = controller
         game.eventEmitter.on('change', ()=> {
@@ -81,6 +87,9 @@ export class GameComponent {
             this.#EndElement.textContent = `Player ${this.#game.winner} Win`
             this.#unbindEventListeners()
             this.#ButtonElement.disabled = false
+            this.#rows.disabled = false
+            this.#columns.disabled = false
+            this.#pointsToWin.disabled = false
             return
         }
         this.#bindEventListeners()

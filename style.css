@@ -32,8 +32,16 @@ td {
     border: 3px dotted #fac1ac;
 }
 #end {
-    background-image: linear-gradient(#a100ff 0%, rgb(43, 0, 255) 100%);
+    background-image: linear-gradient(#8400ff 0%, rgb(255, 117, 0) 100%);
     color: transparent;
     -webkit-background-clip: text;
     font-size: 30px;
+}
+#result-frame {
+    width: 645px;
+    background-color: rgb(255, 162, 101);
+}
+#end-frame {
+    width: 645px;
+    background-color: rgba(255, 136, 163, 0.42);
 }

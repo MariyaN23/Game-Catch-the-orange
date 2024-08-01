@@ -34,6 +34,9 @@ const startGame = async () => {
     const view = new GameComponent(controller, game)
     view.render()
     StartButton.setAttribute('disabled', '')
+    rows.setAttribute('disabled', '')
+    columns.setAttribute('disabled', '')
+    pointstowin.setAttribute('disabled', '')
 }
 
 const StartButton = document.getElementById('start')

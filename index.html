@@ -13,9 +13,13 @@
     <label>Points to win: <input id="pointstowin" type="number" min="1" max="100" oninput="validity.valid||(value='4');"></label>
     <button id="start">Start game</button>
 </div>
-<div id="result"></div>
+<div id="result-frame">
+    <div id="result"></div>
+</div>
 <table id="game-grid"></table>
+<div id="end-frame">
 <div id="end"></div>
+</div>
 <script src="front.js" type="module"></script>
 </body>
 </html>
