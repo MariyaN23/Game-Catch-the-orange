@@ -1,0 +1,39 @@
+body {
+    position: relative;
+    margin: 0;
+    font-size: 20px;
+}
+img {
+    width: 100px;
+    height: 100px;
+}
+td {
+    width: 110px;
+    height: 110px;
+    text-align: center;
+    border: 1px solid black;
+    background-color: white;
+}
+.background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-image: url("./assets/img/background.png");
+    background-repeat: repeat;
+    width: 100%;
+    height: 100vh;
+    opacity: 0.4;
+    z-index: -1;
+}
+.text {
+    width: 600px;
+    padding: 20px;
+    background-color: #ff8e3f;
+    border: 3px dotted #fac1ac;
+}
+#end {
+    background-image: linear-gradient(#a100ff 0%, rgb(43, 0, 255) 100%);
+    color: transparent;
+    -webkit-background-clip: text;
+    font-size: 30px;
+}

@@ -3,40 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Catch the orange</title>
-    <style>
-        body {
-            position: relative;
-            margin: 0;
-        }
-        img {
-            width: 100px;
-            height: 100px;
-        }
-        td {
-            width: 110px;
-            height: 110px;
-            text-align: center;
-            border: 1px solid black;
-        }
-        .background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            background-image: url("./assets/img/background.png");
-            background-repeat: repeat;
-            width: 100%;
-            height: 100vh;
-            opacity: 0.4;
-            z-index: -1;
-        }
-    </style>
+    <link href="style.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
 <div class="background"></div>
-<label>Rows number<input id="rows" type="number" min="3" max="5"></label>
-<label>Columns number<input id="columns" type="number" min="3" max="5"></label>
-<label>Points to win<input id="pointstowin" type="number" min="1" max="100"></label>
-<button id="start">Start game</button>
+<div class="text">
+    <label>Rows number: <input id="rows" type="number" min="3" max="5"></label>
+    <label>Columns number: <input id="columns" type="number" min="3" max="5"></label>
+    <label>Points to win: <input id="pointstowin" type="number" min="1" max="100"></label>
+    <button id="start">Start game</button>
+</div>
 <div id="result"></div>
 <table id="game-grid"></table>
 <div id="end"></div>
