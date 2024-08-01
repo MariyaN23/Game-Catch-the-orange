@@ -4,12 +4,16 @@ import {directions} from './game.js';
 export class GameComponent {
     #tableElement
     #scoreElement
+    #EndElement
+    #ButtonElement
     #game
     #controller
     #unbindEventListeners = null
     constructor(controller, game) {
         this.#tableElement = document.getElementById("game-grid")
         this.#scoreElement = document.getElementById("result")
+        this.#EndElement = document.getElementById("end")
+        this.#ButtonElement = document.getElementById('start')
         this.#game = game
         this.#controller = controller
         game.eventEmitter.on('change', ()=> {
@@ -46,6 +50,7 @@ export class GameComponent {
     render() {
         this.#tableElement.innerHTML = ''
         this.#scoreElement.innerHTML = ''
+        this.#EndElement.textContent = ''
         this.#scoreElement.append(`Player 1: ${this.#game.score[1].points}, Player 2: ${this.#game.score[2].points}`)
         for (let y = 0; y < this.#game.settings.gridSize.rowsCount; y++) {
             const tr = document.createElement("tr")
@@ -71,11 +76,12 @@ export class GameComponent {
             this.#tableElement.append(tr)
         }
         if (this.#game.status === 'finished') {
-            this.#tableElement.remove()
-            this.#scoreElement.remove()
-
-            const EndElement = document.getElementById("end")
-            EndElement.textContent = `Player ${this.#game.winner} Win`
+            this.#tableElement.innerHTML = ''
+            this.#scoreElement.innerHTML = ''
+            this.#EndElement.textContent = `Player ${this.#game.winner} Win`
+            this.#unbindEventListeners()
+            this.#ButtonElement.disabled = false
+            return
         }
         this.#bindEventListeners()
     }

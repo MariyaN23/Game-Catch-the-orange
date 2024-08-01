@@ -8,9 +8,9 @@
 <body>
 <div class="background"></div>
 <div class="text">
-    <label>Rows number: <input id="rows" type="number" min="3" max="5"></label>
-    <label>Columns number: <input id="columns" type="number" min="3" max="5"></label>
-    <label>Points to win: <input id="pointstowin" type="number" min="1" max="100"></label>
+    <label>Rows number: <input id="rows" type="number" min="3" max="5" oninput="validity.valid||(value='4');"></label>
+    <label>Columns number: <input id="columns" type="number" min="3" max="5" oninput="validity.valid||(value='4');"></label>
+    <label>Points to win: <input id="pointstowin" type="number" min="1" max="100" oninput="validity.valid||(value='4');"></label>
     <button id="start">Start game</button>
 </div>
 <div id="result"></div>
